@@ -11,6 +11,8 @@ class Server {
 
         this.pathMysql = {
             //prueba: '/api/prueba',
+            auth: '/api/auth',
+            usuarios: '/api/usuarios',
         };
 
         //Coneccion a la base de datos
@@ -27,6 +29,8 @@ class Server {
 
     routes(){
         //this.app.use(this.pathMysql.prueba, require('../routes'));
+        this.app.use(this.pathsMongo.auth, require('../routes/auth.route'));
+        this.app.use(this.pathsMongo.usuarios, require('../routes/mongoUsuario.route'));
     };
 
     middlewares(){
