@@ -9,7 +9,7 @@ class Server {
         this.app = express();
         this.port = process.env.PORT;
 
-        this.pathMysql = {
+        this.pathsMongo = {
             //prueba: '/api/prueba',
             auth: '/api/auth',
             usuarios: '/api/usuarios',
