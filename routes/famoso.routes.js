@@ -7,6 +7,7 @@ const {
     getFamosoByName,
     getFamosoByCategoria,
     getFamosoByCiudad,
+    getFamosoByPais,
     postFamoso,
     putFamoso,
     deleteFamoso
@@ -46,6 +47,15 @@ router.get('/categoria', getFamosoByCategoria)
 */
 
 router.get('/ciudad',getFamosoByCiudad)
+
+// Ruta para consultar famosos por pais
+/* 
+{
+    pais: String
+}
+*/
+
+router.get('/pais',getFamosoByPais)
 
 // Ruta para crear famoso | es necesario admin
 /* 

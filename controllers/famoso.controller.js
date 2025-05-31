@@ -110,6 +110,33 @@ const getFamosoByCiudad = async (req=request,res=response)=>{
     }
 }
 
+const getFamosoByPais = async (req=request,res=response)=>{
+    const {pais} = req.body
+
+    try{
+        const pais_existe = await paisModel.findOne({nombre:pais})
+
+        if(!pais_existe){
+            return res.status(404).json({
+                ok:false,
+                msg: `No se encontro ningun pais con el nombre ${pais}`
+            })
+        }
+
+        const famosos = famosoModel.find({pais_id:pais_existe._id.toString()})
+
+        res.json({
+            ok:true,
+            data:famosos
+        })
+    }catch(e){
+        console.log(e);
+        res.status(500).json({ok:false,
+            msg:"Error, contacte al administrador"
+        })
+    }
+}
+
 const postFamoso = async (req=request,res=response)=>{
     const nuevoFamoso = new famosoModel(req.body)
     try{
@@ -210,6 +237,7 @@ module.exports={
     getFamosoByName,
     getFamosoByCategoria,
     getFamosoByCiudad,
+    getFamosoByPais,
     postFamoso,
     putFamoso,
     deleteFamoso
