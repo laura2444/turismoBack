@@ -3,15 +3,15 @@ const {Schema,model} = require('mongoose')
 const famosoSchema = Schema({
     ciudad:{
         type: String,
-        require: [true, 'Se necesita una ciudad para el famoso']
+        required: [true, 'Se necesita una ciudad para el famoso']
     },
     nombre:{
         type: String,
-        require:[true, 'El nombre es obligatorio']
+        required:[true, 'El nombre es obligatorio']
     },
     categoria:{
         type: String,
-        require: [true, 'Se necsita una categoria para el famoso']
+        required: [true, 'Se necsita una categoria para el famoso']
     },
     descripcion:{
         type: String

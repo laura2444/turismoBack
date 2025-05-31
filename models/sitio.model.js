@@ -3,29 +3,29 @@ const {Schema,model} = require('mongoose')
 const sitioSchema = Schema({
     nombre:{
         type: String,
-        require: [true, 'Es obligatorio el nombre']
+        required: [true, 'Es obligatorio el nombre']
     },
     tipo:{
         type: String,
-        require: [true, 'El tipo es necesario para Sitio']
+        required: [true, 'El tipo es necesario para Sitio']
     },
     descripcion:{
         type: String,
     },
     direccion:{
         type: String,
-        require: [true, 'Es obligatorio la direccion']
+        required: [true, 'Es obligatorio la direccion']
     },
     ciudad:{
         type: String,
-        require: [true, 'Es obligatorio la ciudad']
+        required: [true, 'Es obligatorio la ciudad']
     },
     img:{
         type: String
     },
     pais_id:{
         type: String,
-        require: [true, 'Es necesario un pais para un sitio']
+        required: [true, 'Es necesario un pais para un sitio']
     },
     plato_id:{
         type: [String],

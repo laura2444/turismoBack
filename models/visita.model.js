@@ -4,24 +4,24 @@ const visitaSchema = Schema({
     famoso_id:{
         type: [String],
         defaul: []
-        //require: [true, 'El famaso es necesario para la visita']
+        //required: [true, 'El famaso es necesario para la visita']
     },
     usuario_id:{
         type: String,
-        require: [true, 'El usuario es necesario para la visita']
+        required: [true, 'El usuario es necesario para la visita']
     },
     sitio_id:{
         type: String,
-        //require: [true, 'El sitio es necesario para la visita']
+        //required: [true, 'El sitio es necesario para la visita']
     },
     fecha:{
         type: Date,
         default: Date.now,
-        require: [true, 'Es obligatorio la fecha de la visita']
+        required: [true, 'Es obligatorio la fecha de la visita']
     },
     comentario:{
         type: String,
-        require: [true, 'Es obligatorio un comentario']
+        required: [true, 'Es obligatorio un comentario']
     },
     img:{
         type: String

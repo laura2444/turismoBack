@@ -3,7 +3,7 @@ const {Schema,model} = require('mongoose')
 const paisSchema = Schema({
     nombre:{
         type: String,
-        require:[true, 'El nombre es obligatorio']
+        required:[true, 'El nombre es obligatorio']
     }
 })
 
