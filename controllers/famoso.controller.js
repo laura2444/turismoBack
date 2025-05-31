@@ -70,6 +70,46 @@ const getFamosoByName = async (req=request,res=response)=>{
     }
 }
 
+const getFamosoByCategoria = async (req=request,res=response)=>{
+    const { categoria } = req.body
+
+    try{
+
+        const famosos = await famosoModel.find({categoria:categoria})
+
+        res.json({
+            ok:true,
+            data:famosos
+        })
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({ok:false,
+            msg:"Error, contacte al administrador"
+        })
+    }
+}
+
+const getFamosoByCiudad = async (req=request,res=response)=>{
+    const { ciudad } = req.body
+
+    try{
+
+        const famosos = await famosoModel.find({ciudad:ciudad})
+
+        res.json({
+            ok:true,
+            data:famosos
+        })
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({ok:false,
+            msg:"Error, contacte al administrador"
+        })
+    }
+}
+
 const postFamoso = async (req=request,res=response)=>{
     const nuevoFamoso = new famosoModel(req.body)
     try{
@@ -168,6 +208,8 @@ module.exports={
     getFamosos,
     getFamosoById,
     getFamosoByName,
+    getFamosoByCategoria,
+    getFamosoByCiudad,
     postFamoso,
     putFamoso,
     deleteFamoso

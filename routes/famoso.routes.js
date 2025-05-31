@@ -5,6 +5,8 @@ const {
     getFamosos,
     getFamosoById,
     getFamosoByName,
+    getFamosoByCategoria,
+    getFamosoByCiudad,
     postFamoso,
     putFamoso,
     deleteFamoso
@@ -26,6 +28,24 @@ router.get('/:id', getFamosoById)
 */
 
 router.get('/nombre', getFamosoByName)
+
+// Ruta para consultar famosos por categoria
+/* 
+{
+    categoria: String
+}
+*/
+
+router.get('/categoria', getFamosoByCategoria)
+
+// Ruta pra consultar famosos por ciudad
+/* 
+{
+    ciudad: String
+}
+*/
+
+router.get('/ciudad',getFamosoByCiudad)
 
 // Ruta para crear famoso | es necesario admin
 /* 
