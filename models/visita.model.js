@@ -3,7 +3,7 @@ const {Schema,model} = require('mongoose')
 const visitaSchema = Schema({
     famoso_id:{
         type: [String],
-        defaul: []
+        default: [],
         //required: [true, 'El famaso es necesario para la visita']
     },
     usuario_id:{
@@ -12,6 +12,7 @@ const visitaSchema = Schema({
     },
     sitio_id:{
         type: String,
+        default: ""
         //required: [true, 'El sitio es necesario para la visita']
     },
     fecha:{

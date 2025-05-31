@@ -107,7 +107,7 @@ const postPlato = async (req = request, res = response) => {
 
             let platos_sitio = [...sitio_existe.plato_id]
 
-            platos_sitio.push(nuevoPlato._id)
+            platos_sitio.push(nuevoPlato._id.toString())
 
             try {
                 await sitioModel.updateOne({ _id: sitioID }, { plato_id: platos_sitio })
@@ -172,10 +172,10 @@ const putPlato = async (req = request, res = response) => {
 
             let platos_sitio = [...sitio_existe.plato_id]
 
-            const index = platos_sitio.indexOf(plato._id)
+            const index = platos_sitio.indexOf(plato._id.toString())
 
             if (index == -1) {
-                platos_sitio.push(plato._id)
+                platos_sitio.push(plato._id.toString())
                 try {
                     await sitioModel.updateOne({ _id: sitioID }, { plato_id: platos_sitio })
                 } catch (e) {
@@ -229,7 +229,7 @@ const deletePlato = async (req = request, res = response) => {
 
             let platos_sitio = [...sitio_existe.plato_id]
 
-            const index = platos_sitio.indexOf(plato._id)
+            const index = platos_sitio.indexOf(plato._id.toString().toString())
 
             if (index !== -1) platos_sitio.splice(index, 1) // remover al indice "index" 1 enlemento
 

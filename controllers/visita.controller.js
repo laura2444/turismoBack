@@ -50,9 +50,9 @@ const postVisita = async (req = request, res = response) => {
     const nuevoVisita = new visitaModel(req.body)
     try {
 
-        const { usuario_id, famoso_id, sitio_id } = req.body
+        //const { usuario_id, famoso_id, sitio_id } = req.body
 
-        const usuario_existe = await Usuario.findOne({ _id: usuario_id })
+        const usuario_existe = await Usuario.findOne({ _id: nuevoVisita.usuario_id })
 
         if (!usuario_existe) {
             return res.status(406).json({
@@ -61,7 +61,7 @@ const postVisita = async (req = request, res = response) => {
             });
         }
 
-        for (const famosoID of famoso_id){
+        for (const famosoID of nuevoVisita.famoso_id){
             const famoso_existe = await famosoModel.findOne({ _id: famosoID })
             if (!famoso_existe) {
                 return res.status(406).json({
@@ -71,7 +71,7 @@ const postVisita = async (req = request, res = response) => {
             }
         }
 
-        if (sitio_id != "") {
+        if (nuevoVisita.sitio_id != "") {
             const sitio_existe = await sitioModel.findOne({ _id: sitio_id })
             if (!sitio_existe) {
                 return res.status(406).json({
