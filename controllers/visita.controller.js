@@ -61,22 +61,14 @@ const postVisita = async (req = request, res = response) => {
             });
         }
 
-        let famoso_status = null
-
-        famoso_id.forEach(async (famosoID) => {
+        for (const famosoID of famoso_id){
             const famoso_existe = await famosoModel.findOne({ _id: famosoID })
             if (!famoso_existe) {
-                famoso_status = res.status(406).json({
+                return res.status(406).json({
                     ok: false,
                     msg: `No existe un famoso con id ${famosoID} para vincular a visita`
                 });
-
-                return null
             }
-        })
-
-        if (famoso_status != null) {
-            return famoso_status
         }
 
         if (sitio_id != "") {
@@ -136,22 +128,14 @@ const putVisita = async (req = request, res = response) => {
             })
         }
 
-        let famoso_status = null
-
-        famoso_id.forEach(async (famosoID) => {
+        for (const famosoID of famoso_id){
             const famoso_existe = await famosoModel.findOne({ _id: famosoID })
             if (!famoso_existe) {
-                famoso_status = res.status(406).json({
+                return res.status(406).json({
                     ok: false,
                     msg: `No existe un famoso con id ${famosoID} para vincular a visita`
                 });
-
-                return null
             }
-        })
-
-        if (famoso_status != null){
-            return famoso_status
         }
 
         if (sitio_id != "") {
@@ -168,7 +152,7 @@ const putVisita = async (req = request, res = response) => {
 
         await visitaModel.updateOne({ _id: id }, req.body)
 
-        res.status(201).json({
+        res.status(200).json({
             ok: true,
             msg: 'Actualizado con exito'
         });
@@ -212,7 +196,7 @@ const deleteVisita = async (req = request, res = response) => {
 
         await visitaModel.deleteOne({ _id: id })
 
-        res.status(201).json({
+        res.status(200).json({
             ok: true,
             msg: "Eliminado con exito"
         });

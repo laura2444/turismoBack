@@ -49,7 +49,7 @@ const getPaisByName = async (req=request,res=response)=>{
 
     try{    
 
-        const pais = await paisModel.find({nombre:nombre})
+        const pais = await paisModel.findOne({nombre:nombre})
 
         if (!pais){
             return res.status(404).json({
@@ -73,7 +73,7 @@ const getPaisByName = async (req=request,res=response)=>{
 const postPais = async (req=request,res=response)=>{
     const nuevoPais = new paisModel(req.body)
     try{
-        const pais_existe = await paisModel.find({nombre:nuevoPais.nombre})
+        const pais_existe = await paisModel.findOne({nombre:nuevoPais.nombre})
 
         if (pais_existe){
             return res.status(418).json({ok:false,

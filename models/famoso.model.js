@@ -7,7 +7,8 @@ const famosoSchema = Schema({
     },
     nombre:{
         type: String,
-        required:[true, 'El nombre es obligatorio']
+        required:[true, 'El nombre es obligatorio'],
+        unique: true
     },
     categoria:{
         type: String,

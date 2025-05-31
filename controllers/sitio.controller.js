@@ -51,7 +51,7 @@ const getSitioByName = async (req = request, res = response) => {
 
     try {
 
-        const sitio = await sitioModel.find({ nombre: nombre })
+        const sitio = await sitioModel.findOne({ nombre: nombre })
 
         if (!sitio) {
             return res.status(404).json({
@@ -76,7 +76,7 @@ const getSitioByName = async (req = request, res = response) => {
 const postSitio = async (req = request, res = response) => {
     const nuevoSitio = new sitioModel(req.body)
     try {
-        const sitio_existe = await sitioModel.find({ nombre: nuevoSitio.nombre })
+        const sitio_existe = await sitioModel.findOne({ nombre: nuevoSitio.nombre })
 
         if (sitio_existe) {
             return res.status(418).json({
@@ -94,41 +94,30 @@ const postSitio = async (req = request, res = response) => {
             });
         }
 
-        let plato_status = null
-
-
-        nuevoSitio.plato_id.forEach(async (platoId) => {
-            const plato_existe = await platoModel.findOne({ _id: platoId })
+        for (const platoID of nuevoSitio.plato_id){
+            const plato_existe = await platoModel.findOne({ _id: platoID })
             if (!plato_existe) {
-                plato_status = res.status(406).json({
+                return res.status(406).json({
                     ok: false,
-                    msg: `No existe un plato con id ${platoId} para vincular a sitio`
+                    msg: `No existe un plato con id ${platoID} para vincular a sitio`
                 });
-
-                return null
             }
 
             // Accion automatica para vincular sitio a cada plato
 
-            let sitios_plato = plato_existe.sitio_id
+            let sitios_plato = [...plato_existe.sitio_id]
 
             sitios_plato.push(nuevoSitio._id)
 
             try {
-                await platoModel.updateOne({ _id: platoId }, { sitio_id: sitios_plato })
+                await platoModel.updateOne({ _id: platoID }, { sitio_id: sitios_plato })
             } catch (e) {
                 console.log(e);
-                plato_status = res.status(500).json({
+                return res.status(500).json({
                     ok: false,
                     msg: `Error al enlazar sitio ${nuevoSitio.nombre} automaticamente a plato ${plato_existe.nombre}`
                 })
-
-                return null
             }
-        })
-
-        if (plato_status != null) {
-            return plato_status
         }
 
         await nuevoSitio.save()
@@ -169,25 +158,20 @@ const putSitio = async (req = request, res = response) => {
             });
         }
 
-        let plato_status = null
-
-
-        req.body.plato_id.forEach(async (platoID) => {
+        for (const platoID of req.body.plato_id){
             const plato_existe = await platoModel.findOne({ _id: platoID })
             if (!plato_existe) {
-                plato_status = res.status(406).json({
+                return res.status(406).json({
                     ok: false,
                     msg: `No existe un plato con id ${platoID} para vincular a sitio`
                 });
-
-                return null
             }
 
             // Accion automatica para vincular sitio a cada plato
 
-            let sitios_plato = plato_existe.sitio_id
+            let sitios_plato = [...plato_existe.sitio_id]
 
-            const index = platos_sitio.indexOf(sitio._id)
+            const index = sitios_plato.indexOf(sitio._id)
 
             if (index == -1) {
                 sitios_plato.push(sitio._id)
@@ -196,23 +180,17 @@ const putSitio = async (req = request, res = response) => {
                     await platoModel.updateOne({ _id: platoID }, { sitio_id: sitios_plato })
                 } catch (e) {
                     console.log(e);
-                    plato_status = res.status(500).json({
+                    return res.status(500).json({
                         ok: false,
                         msg: `Error al enlazar sitio ${sitio.nombre} automaticamente a plato ${plato_existe.nombre}`
                     })
-
-                    return null
                 }
             }
-        })
-
-        if (plato_status != null) {
-            return plato_status
         }
 
         await sitioModel.updateOne({ _id: id }, req.body)
 
-        res.status(201).json({
+        res.status(200).json({
             ok: true,
             msg: 'Actualizado con exito'
         });
@@ -240,45 +218,35 @@ const deleteSitio = async (req = request, res = response) => {
 
         // Accion para cuando se elimina un sitio eliminarse de los platos relacionados
 
-        let plato_status = null
-
-        sitio.plato_id.forEach(async (platoID) => {
+        for (const platoID of sitio.plato_id){
             const plato_existe = await platoModel.findOne({ _id: platoID })
             if (!plato_existe) {
-                plato_status = res.status(406).json({
+                return res.status(406).json({
                     ok: false,
                     msg: `No existe un plato con id ${platoID} para desvincular a sitio`
                 });
-
-                return null
             }
 
-            let sitios_plato = plato_existe.sitio_id
+            let sitios_plato = [...plato_existe.sitio_id]
 
-            const index = platos_sitio.indexOf(sitio._id)
+            const index = sitios_plato.indexOf(sitio._id)
 
-            sitios_plato.splice(index, 1) // remover al indice "index" 1 enlemento
+            if (index !== -1) sitios_plato.splice(index, 1) // remover al indice "index" 1 enlemento
 
             try {
                 await platoModel.updateOne({ _id: platoID }, { sitio_id: sitios_plato })
             } catch (e) {
                 console.log(e);
-                plato_status = res.status(500).json({
+                return res.status(500).json({
                     ok: false,
                     msg: `Error al desenlazar sitio ${sitio.nombre} automaticamente a plato ${plato_existe.nombre}`
                 })
-
-                return null
             }
-        })
-
-        if (plato_status != null){
-            return plato_status
         }
 
         await sitioModel.deleteOne({ _id: id })
 
-        res.status(201).json({
+        res.status(200).json({
             ok: true,
             msg: "Eliminado con exito"
         });

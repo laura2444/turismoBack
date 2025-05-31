@@ -2,7 +2,7 @@ const { Router } = require('express')
 const { validarJWT } = require('../middlewares/validar-jwt')
 const { esAdminRole } = require('../middlewares/validar-roles')
 const {
-    getplatos,
+    getPlatos,
     getPlatoById,
     getPlatoByName,
     postPlato,
@@ -14,7 +14,7 @@ const router = Router()
 
 // Ruta para traer platos
 
-router.get('/', getplatos)
+router.get('/', getPlatos)
 
 // Ruta para traer plato por id
 

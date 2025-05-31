@@ -49,7 +49,7 @@ const getFamosoByName = async (req=request,res=response)=>{
 
     try{    
 
-        const famoso = await famosoModel.find({nombre:nombre})
+        const famoso = await famosoModel.findOne({nombre:nombre})
 
         if (!famoso){
             return res.status(404).json({
@@ -73,7 +73,7 @@ const getFamosoByName = async (req=request,res=response)=>{
 const postFamoso = async (req=request,res=response)=>{
     const nuevoFamoso = new famosoModel(req.body)
     try{
-        const famoso_existe = await famosoModel.find({nombre:nuevoFamoso.nombre})
+        const famoso_existe = await famosoModel.findOne({nombre:nuevoFamoso.nombre})
 
         if (famoso_existe){
             return res.status(418).json({ok:false,
