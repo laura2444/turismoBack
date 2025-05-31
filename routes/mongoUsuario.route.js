@@ -46,7 +46,7 @@ router.put('/:id',[
 
 
 router.post('/',[
- validarJWT, //Midlleware para el Tokens
+ //validarJWT, //Midlleware para el Tokens
  //check('nombre','El nombre es obligatorio').not().isEmpty(),
  //check('password','El password debe de ser mas de 6 letras').isLength({min:6}),
  //check('correo','El correo no es valido').isEmail(),

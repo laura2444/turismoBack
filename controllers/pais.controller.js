@@ -1,6 +1,6 @@
 const { request,response } = require('express');
 
-const paisModel = require('../models');
+const {paisModel} = require('../models');
 
 const getPaises = async (req=request,res=response)=>{
     try{
