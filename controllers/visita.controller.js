@@ -228,7 +228,6 @@ const deleteVisita = async (req = request, res = response) => {
 
 module.exports = {
     getVisitas,
-    getVisitaByName,
     getVisitaById,
     postVisita,
     putVisita,

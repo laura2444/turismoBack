@@ -17,6 +17,7 @@ const platoSchema = Schema({
     },
     sitio_id:{
         type: [String],
+        default: [],
         require: [true, 'Es necesario un sitio para plato']
     },
     img:{

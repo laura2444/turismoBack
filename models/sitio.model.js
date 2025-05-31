@@ -28,7 +28,8 @@ const sitioSchema = Schema({
         require: [true, 'Es necesario un pais para un sitio']
     },
     plato_id:{
-        type: [String]
+        type: [String],
+        default: []
     }
 })
 
