@@ -34,7 +34,7 @@ router.get('/nombre', getPlatoByName)
 {
     nombre: String, (Req)
     descripcion: String,
-    precio: Double,
+    precio: String,
     pais_id: String, (Req)
     sitio_id: [String], (Req) Por fefault es []
     img: String
@@ -48,7 +48,7 @@ router.post('/crear', [validarJWT, esAdminRole], postPlato)
 {
     nombre: String, (Req)
     descripcion: String,
-    precio: Double,
+    precio: String,
     pais_id: String, (Req)
     sitio_id: [String], (Req) Por default es []
     img: String

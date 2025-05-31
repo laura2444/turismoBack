@@ -10,7 +10,7 @@ const platoSchema = Schema({
         type: String
     },
     precio:{
-        type: Double
+        type: String
     },
     pais_id:{
         type: String,
