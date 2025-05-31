@@ -1,13 +1,13 @@
 const Usuario = require('./mongoUsuario.model')
-const famoso = require('./famoso.model')
-const pais = require('./pais.model')
-const sitio = require('./sitio.model')
-const plato = require('./plato.model')
+const famosoModel = require('./famoso.model')
+const paisModel = require('./pais.model')
+const sitioModel = require('./sitio.model')
+const platoModel = require('./plato.model')
 
 module.exports={
     Usuario,
-    famoso,
-    pais,
-    sitio,
-    plato
+    famosoModel,
+    paisModel,
+    sitioModel,
+    platoModel
 }

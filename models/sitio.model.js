@@ -22,6 +22,13 @@ const sitioSchema = Schema({
     },
     img:{
         type: String
+    },
+    pais_id:{
+        type: String,
+        require: [true, 'Es necesario un pais para un sitio']
+    },
+    plato_id:{
+        type: [String]
     }
 })
 

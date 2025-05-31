@@ -3,7 +3,7 @@ const {Schema,model} = require('mongoose')
 const visitaSchema = Schema({
     famoso_id:{
         type: [String],
-        require: [true, 'El famaso es necesario para la visita']
+        //require: [true, 'El famaso es necesario para la visita']
     },
     usuario_id:{
         type: String,
@@ -11,7 +11,7 @@ const visitaSchema = Schema({
     },
     sitio_id:{
         type: String,
-        require: [true, 'El sitio es necesario para la visita']
+        //require: [true, 'El sitio es necesario para la visita']
     },
     fecha:{
         type: Date,
