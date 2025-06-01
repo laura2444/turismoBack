@@ -27,7 +27,7 @@ router.get('/:id', getPlatoById)
 }
 */
 
-router.get('/nombre', getPlatoByName)
+router.post('/nombre', getPlatoByName)
 
 // Ruta para crear plato | es necesario admin
 /* 

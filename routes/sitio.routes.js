@@ -27,7 +27,16 @@ router.get('/:id', getSitioById)
     nombre: String
 }
 */
-router.get('/nombre', getSitioByName)
+router.post('/nombre', getSitioByName)
+
+
+// Top 10 sitios mas visitados por pais
+/* 
+{
+    pais: String
+}
+*/
+router.post('/top10porpais',getTopSitiosVisitadosByPais)
 
 // Ruta para crear sitio | es necesario admin
 /* 
@@ -42,14 +51,6 @@ router.get('/nombre', getSitioByName)
     plato_id: [String] por defaul es []
 }
 */
-
-// Top 10 sitios mas visitados por pais
-/* 
-{
-    pais: String
-}
-*/
-router.get('/top10porpais',getTopSitiosVisitadosByPais)
 
 router.post('/crear', [validarJWT, esAdminRole], postSitio)
 

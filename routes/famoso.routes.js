@@ -28,7 +28,7 @@ router.get('/:id', getFamosoById)
 }
 */
 
-router.get('/nombre', getFamosoByName)
+router.post('/nombre', getFamosoByName)
 
 // Ruta para consultar famosos por categoria
 /* 
@@ -37,7 +37,7 @@ router.get('/nombre', getFamosoByName)
 }
 */
 
-router.get('/categoria', getFamosoByCategoria)
+router.post('/categoria', getFamosoByCategoria)
 
 // Ruta pra consultar famosos por ciudad
 /* 
@@ -46,7 +46,7 @@ router.get('/categoria', getFamosoByCategoria)
 }
 */
 
-router.get('/ciudad',getFamosoByCiudad)
+router.post('/ciudad',getFamosoByCiudad)
 
 // Ruta para consultar famosos por pais
 /* 
@@ -55,7 +55,7 @@ router.get('/ciudad',getFamosoByCiudad)
 }
 */
 
-router.get('/pais',getFamosoByPais)
+router.post('/pais',getFamosoByPais)
 
 // Ruta para crear famoso | es necesario admin
 /* 

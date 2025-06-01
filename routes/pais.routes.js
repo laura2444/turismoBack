@@ -27,7 +27,7 @@ router.get('/:id', getPaisById)
 }
 */
 
-router.get('/nombre', getPaisByName)
+router.post('/nombre', getPaisByName)
 
 // Ruta para crear pais | es necesario admin
 /* 

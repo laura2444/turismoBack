@@ -33,7 +33,7 @@ router.get('/:id', getVisitaById)
 }
 */
 
-router.get('/usuario',getVisitasByUsuarioId)
+router.post('/usuario',getVisitasByUsuarioId)
 
 // Ruta para traer visitas por nombre sitio
 /* 
@@ -42,7 +42,7 @@ router.get('/usuario',getVisitasByUsuarioId)
 }
 */
 
-router.get('/sitio',getVisitasBySitio)
+router.post('/sitio',getVisitasBySitio)
 
 // Ruta para crear visita
 /* 
