@@ -77,6 +77,6 @@ router.put('/editar/:id/:reqUserId', [validarJWT], putVisita)
 
 // Ruta para eliminar visita | necesita el id del usuario que hace el request
 
-router.delete('eliminar/:id/:reqUserId', [validarJWT], deleteVisita)
+router.delete('/eliminar/:id/:reqUserId', [validarJWT], deleteVisita)
 
 module.exports = router
