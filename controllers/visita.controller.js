@@ -46,6 +46,34 @@ const getVisitaById = async (req = request, res = response) => {
     }
 }
 
+const getVisitasByUsuarioId  = async (req = request, res = response)=>{
+    const {usuario_id} = req.body
+
+    try{
+        const usuario_existe = await Usuario.findOne({_id:usuario_id})
+
+        if(!usuario_existe){
+            return res.status(406).json({
+                ok: false,
+                msg: `No existe un usuario con este id ${usuario_id}`
+            });
+        }
+
+        const visitas = await visitaModel.find({usuario_id:usuario_id})
+
+        res.json({
+            ok: true,
+            data: visitas
+        })
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        })
+    }
+}
+
 const postVisita = async (req = request, res = response) => {
     const nuevoVisita = new visitaModel(req.body)
     try {
@@ -213,6 +241,7 @@ const deleteVisita = async (req = request, res = response) => {
 module.exports = {
     getVisitas,
     getVisitaById,
+    getVisitasByUsuarioId,
     postVisita,
     putVisita,
     deleteVisita

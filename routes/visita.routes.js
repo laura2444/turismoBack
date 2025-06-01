@@ -3,6 +3,7 @@ const { validarJWT } = require('../middlewares/validar-jwt')
 const {
     getVisitas,
     getVisitaById,
+    getVisitasByUsuarioId,
     postVisita,
     putVisita,
     deleteVisita
@@ -23,6 +24,15 @@ router.get('/', getVisitas)
 // Ruta para trear visita por id
 
 router.get('/:id', getVisitaById)
+
+// Ruta para traer visitas por usuario id
+/* 
+{
+    usuario_id: String
+}
+*/
+
+router.get('/usuario',getVisitasByUsuarioId)
 
 // Ruta para crear visita
 /* 
