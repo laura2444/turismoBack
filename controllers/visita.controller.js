@@ -78,7 +78,7 @@ const getVisitasBySitio = async (req = request, res = response) => {
     const sitio = req.body
 
     try {
-        const sitio_existe = await sitioModel.findOne({ nombre: sitio })
+        const sitio_existe = await sitioModel.findOne({ nombre: { $regex: sitio, $options:'i' } })
 
         if (!sitio_existe) {
             return res.status(406).json({
@@ -128,14 +128,14 @@ const postVisita = async (req = request, res = response) => {
         }
 
         if (nuevoVisita.sitio_id != "") {
-            const sitio_existe = await sitioModel.findOne({ _id: sitio_id })
+            const sitio_existe = await sitioModel.findOne({ _id: nuevoVisita.sitio_id }) // Corregido
             if (!sitio_existe) {
                 return res.status(406).json({
-                    ok: false,
-                    msg: "No existe un sitio con este id para vincular a visita"
+                ok: false,
+                msg: "No existe un sitio con este id para vincular a visita"
                 });
             }
-        }
+            }
 
         await nuevoVisita.save()
 
@@ -266,6 +266,30 @@ const deleteVisita = async (req = request, res = response) => {
     }
 }
 
+const getCoordenadasVisitas = async (req = request, res = response) => {
+    try {
+        // Busca solo las visitas que tengan coordenadas definidas
+        const visitasConCoordenadas = await visitaModel.find(
+            { coordenadas: { $exists: true, $ne: null, $ne: "" } },
+            { coordenadas: 1, _id: 0 } // solo devuelve el campo coordenadas
+        );
+
+        const coordenadas = visitasConCoordenadas.map(v => v.coordenadas);
+
+        res.json({
+            ok: true,
+            data: coordenadas
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        });
+    }
+}
+
+
 module.exports = {
     getVisitas,
     getVisitaById,
@@ -273,5 +297,6 @@ module.exports = {
     getVisitasBySitio,
     postVisita,
     putVisita,
-    deleteVisita
+    deleteVisita,
+    getCoordenadasVisitas
 }

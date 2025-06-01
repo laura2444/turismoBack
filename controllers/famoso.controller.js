@@ -49,7 +49,7 @@ const getFamosoByName = async (req=request,res=response)=>{
 
     try{    
 
-        const famoso = await famosoModel.findOne({nombre:nombre})
+        const famoso = await famosoModel.findOne({nombre:{ $regex: nombre, $options:'i' }})
 
         if (!famoso){
             return res.status(404).json({
@@ -75,7 +75,7 @@ const getFamosoByCategoria = async (req=request,res=response)=>{
 
     try{
 
-        const famosos = await famosoModel.find({categoria:categoria})
+        const famosos = await famosoModel.find({categoria:{ $regex: categoria, $options:'i' }})
 
         res.json({
             ok:true,
@@ -95,7 +95,7 @@ const getFamosoByCiudad = async (req=request,res=response)=>{
 
     try{
 
-        const famosos = await famosoModel.find({ciudad:ciudad})
+        const famosos = await famosoModel.find({ciudad:{ $regex: ciudad, $options:'i' }})
 
         res.json({
             ok:true,
@@ -114,7 +114,7 @@ const getFamosoByPais = async (req=request,res=response)=>{
     const {pais} = req.body
 
     try{
-        const pais_existe = await paisModel.findOne({nombre:pais})
+        const pais_existe = await paisModel.findOne({nombre:{ $regex: pais, $options:'i' }})
 
         if(!pais_existe){
             return res.status(404).json({
@@ -140,7 +140,7 @@ const getFamosoByPais = async (req=request,res=response)=>{
 const postFamoso = async (req=request,res=response)=>{
     const nuevoFamoso = new famosoModel(req.body)
     try{
-        const famoso_existe = await famosoModel.findOne({nombre:nuevoFamoso.nombre})
+        const famoso_existe = await famosoModel.findOne({nombre:{ $regex: nuevoFamoso.nombre, $options:'i' }})
 
         if (famoso_existe){
             return res.status(418).json({ok:false,

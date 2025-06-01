@@ -1,3 +1,4 @@
+
 const { Router } = require('express')
 const { validarJWT } = require('../middlewares/validar-jwt')
 const {
@@ -7,7 +8,8 @@ const {
     getVisitasBySitio,
     postVisita,
     putVisita,
-    deleteVisita
+    deleteVisita,
+    getCoordenadasVisitas
 } = require('../controllers/visita.controller')
 
 const router = Router()
@@ -21,6 +23,8 @@ const router = Router()
 // Ruta para traer visitas
 
 router.get('/', getVisitas)
+
+router.get('/coordenadas', getCoordenadasVisitas);
 
 // Ruta para trear visita por id
 
@@ -78,5 +82,7 @@ router.put('/editar/:id/:reqUserId', [validarJWT], putVisita)
 // Ruta para eliminar visita | necesita el id del usuario que hace el request
 
 router.delete('/eliminar/:id/:reqUserId', [validarJWT], deleteVisita)
+
+
 
 module.exports = router
