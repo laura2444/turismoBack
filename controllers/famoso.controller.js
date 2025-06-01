@@ -123,7 +123,7 @@ const getFamosoByPais = async (req=request,res=response)=>{
             })
         }
 
-        const famosos = famosoModel.find({pais_id:pais_existe._id.toString()})
+        const famosos = await famosoModel.find({pais_id:pais_existe._id.toString()})
 
         res.json({
             ok:true,
