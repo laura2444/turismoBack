@@ -4,6 +4,7 @@ const {
     getVisitas,
     getVisitaById,
     getVisitasByUsuarioId,
+    getVisitasBySitio,
     postVisita,
     putVisita,
     deleteVisita
@@ -33,6 +34,15 @@ router.get('/:id', getVisitaById)
 */
 
 router.get('/usuario',getVisitasByUsuarioId)
+
+// Ruta para traer visitas por nombre sitio
+/* 
+{
+    sitio: String
+}
+*/
+
+router.get('/sitio',getVisitasBySitio)
 
 // Ruta para crear visita
 /* 

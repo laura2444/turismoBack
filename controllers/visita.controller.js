@@ -46,26 +46,54 @@ const getVisitaById = async (req = request, res = response) => {
     }
 }
 
-const getVisitasByUsuarioId  = async (req = request, res = response)=>{
-    const {usuario_id} = req.body
+const getVisitasByUsuarioId = async (req = request, res = response) => {
+    const { usuario_id } = req.body
 
-    try{
-        const usuario_existe = await Usuario.findOne({_id:usuario_id})
+    try {
+        const usuario_existe = await Usuario.findOne({ _id: usuario_id })
 
-        if(!usuario_existe){
+        if (!usuario_existe) {
             return res.status(406).json({
                 ok: false,
                 msg: `No existe un usuario con este id ${usuario_id}`
             });
         }
 
-        const visitas = await visitaModel.find({usuario_id:usuario_id})
+        const visitas = await visitaModel.find({ usuario_id: usuario_id })
 
         res.json({
             ok: true,
             data: visitas
         })
-    }catch(e){
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        })
+    }
+}
+
+const getVisitasBySitio = async (req = request, res = response) => {
+    const sitio = req.body
+
+    try {
+        const sitio_existe = await sitioModel.findOne({ nombre: sitio })
+
+        if (!sitio_existe) {
+            return res.status(406).json({
+                ok: false,
+                msg: `No existe un sitio con el nombre ${sitio}`
+            });
+        }
+
+        const visitas = await visitaModel.find({sitio_id:sitio_existe._id.toString()})
+
+        res.json({
+            ok: true,
+            data: visitas
+        })
+    } catch {
         console.log(e);
         res.status(500).json({
             ok: false,
@@ -89,7 +117,7 @@ const postVisita = async (req = request, res = response) => {
             });
         }
 
-        for (const famosoID of nuevoVisita.famoso_id){
+        for (const famosoID of nuevoVisita.famoso_id) {
             const famoso_existe = await famosoModel.findOne({ _id: famosoID })
             if (!famoso_existe) {
                 return res.status(406).json({
@@ -149,14 +177,14 @@ const putVisita = async (req = request, res = response) => {
             });
         }
 
-        if (!(visita.usuario_id === reqUserId)){
+        if (!(visita.usuario_id === reqUserId)) {
             return res.status(403).json({
-                ok:false,
+                ok: false,
                 msg: "No tienes los derechos para editar esta visita"
             })
         }
 
-        for (const famosoID of famoso_id){
+        for (const famosoID of famoso_id) {
             const famoso_existe = await famosoModel.findOne({ _id: famosoID })
             if (!famoso_existe) {
                 return res.status(406).json({
@@ -215,9 +243,9 @@ const deleteVisita = async (req = request, res = response) => {
             });
         }
 
-        if (!(visita.usuario_id === reqUserId) && !usuario_existe.admin){
+        if (!(visita.usuario_id === reqUserId) && !usuario_existe.admin) {
             return res.status(403).json({
-                ok:false,
+                ok: false,
                 msg: "No tienes los derechos para eliminar esta visita"
             })
         }
@@ -242,6 +270,7 @@ module.exports = {
     getVisitas,
     getVisitaById,
     getVisitasByUsuarioId,
+    getVisitasBySitio,
     postVisita,
     putVisita,
     deleteVisita
