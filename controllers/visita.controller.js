@@ -78,7 +78,7 @@ const getVisitasBySitio = async (req = request, res = response) => {
     const sitio = req.body
 
     try {
-        const sitio_existe = await sitioModel.findOne({ nombre: sitio })
+        const sitio_existe = await sitioModel.findOne({ nombre: { $regex: sitio, $options:'i' } })
 
         if (!sitio_existe) {
             return res.status(406).json({

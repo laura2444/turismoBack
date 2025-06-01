@@ -51,7 +51,7 @@ const getSitioByName = async (req = request, res = response) => {
 
     try {
 
-        const sitio = await sitioModel.findOne({ nombre: nombre })
+        const sitio = await sitioModel.findOne({ nombre: { $regex: nombre, $options:'i' } })
 
         if (!sitio) {
             return res.status(404).json({
@@ -77,7 +77,7 @@ const getSitiosByPais = async (req = request, res = response) => {
     const { pais } = req.body
 
     try {
-        const pais_existe = await paisModel.findOne({ nombre: pais })
+        const pais_existe = await paisModel.findOne({ nombre: { $regex: pais, $options:'i' } })
 
         if (!pais_existe) {
             return res.status(404).json({
@@ -105,7 +105,7 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
     const { pais } = req.body
 
     try {
-        const pais_existe = await paisModel.findOne({ nombre: pais })
+        const pais_existe = await paisModel.findOne({ nombre: { $regex: pais, $options:'i' } })
 
         if (!pais_existe) {
             return res.status(404).json({
@@ -193,7 +193,7 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
 const getSitioByCiudad = async (req = request, res = response)=>{
     const {ciudad} = req.body
     try {
-        const sitios = await sitioModel.find({ciudad:ciudad})
+        const sitios = await sitioModel.find({ciudad:{ $regex: ciudad, $options:'i' }})
 
         res.json({
             ok: true,
@@ -211,7 +211,7 @@ const getSitioByCiudad = async (req = request, res = response)=>{
 const postSitio = async (req = request, res = response) => {
     const nuevoSitio = new sitioModel(req.body)
     try {
-        const sitio_existe = await sitioModel.findOne({ nombre: nuevoSitio.nombre })
+        const sitio_existe = await sitioModel.findOne({ nombre: { $regex: nuevoSitio.nombre, $options:'i' } })
 
         if (sitio_existe) {
             return res.status(418).json({

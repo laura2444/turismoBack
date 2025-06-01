@@ -51,7 +51,7 @@ const getPlatoByName = async (req = request, res = response) => {
 
     try {
 
-        const plato = await platoModel.findOne({ nombre: nombre })
+        const plato = await platoModel.findOne({ nombre: { $regex: nombre, $options:'i' } })
 
         if (!plato) {
             return res.status(404).json({
@@ -76,7 +76,7 @@ const getPlatoByName = async (req = request, res = response) => {
 const postPlato = async (req = request, res = response) => {
     const nuevoPlato = new platoModel(req.body)
     try {
-        const plato_existe = await platoModel.findOne({ nombre: nuevoPlato.nombre })
+        const plato_existe = await platoModel.findOne({ nombre: { $regex: nuevoPlato.nombre, $options:'i' } })
 
         if (plato_existe) {
             return res.status(418).json({
