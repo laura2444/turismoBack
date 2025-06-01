@@ -7,6 +7,7 @@ const {
     getSitioByName,
     getSitiosByPais,
     getTopSitiosVisitadosByPais,
+    getSitioByCiudad,
     postSitio,
     putSitio,
     deleteSitio
@@ -46,7 +47,17 @@ router.post('/pais',getSitiosByPais)
     pais: String
 }
 */
+
 router.post('/top10porpais',getTopSitiosVisitadosByPais)
+
+// Ruta para traer sitios por ciudad
+/* 
+{
+    ciudad: String
+}
+*/
+
+router.post('/ciudad',getSitioByCiudad)
 
 // Ruta para crear sitio | es necesario admin
 /* 

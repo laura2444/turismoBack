@@ -190,6 +190,24 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
     }
 }
 
+const getSitioByCiudad = async (req = request, res = response)=>{
+    const {ciudad} = req.body
+    try {
+        const sitios = await sitioModel.find({ciudad:ciudad})
+
+        res.json({
+            ok: true,
+            data: sitios
+        })
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        })
+    }
+}
+
 const postSitio = async (req = request, res = response) => {
     const nuevoSitio = new sitioModel(req.body)
     try {
@@ -383,6 +401,7 @@ module.exports = {
     getSitioByName,
     getSitiosByPais,
     getTopSitiosVisitadosByPais,
+    getSitioByCiudad,
     postSitio,
     putSitio,
     deleteSitio
