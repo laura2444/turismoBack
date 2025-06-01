@@ -5,6 +5,7 @@ const {
     getSitios,
     getSitioById,
     getSitioByName,
+    getSitiosByPais,
     getTopSitiosVisitadosByPais,
     postSitio,
     putSitio,
@@ -27,8 +28,17 @@ router.get('/:id', getSitioById)
     nombre: String
 }
 */
+
 router.post('/nombre', getSitioByName)
 
+// Ruta para traer sitios por pais
+/* 
+{
+    pais: String
+}
+*/
+
+router.post('/pais',getSitiosByPais)
 
 // Top 10 sitios mas visitados por pais
 /* 

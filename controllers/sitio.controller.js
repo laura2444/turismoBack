@@ -73,6 +73,34 @@ const getSitioByName = async (req = request, res = response) => {
     }
 }
 
+const getSitiosByPais = async (req = request, res = response) => {
+    const { pais } = req.body
+
+    try {
+        const pais_existe = await paisModel.findOne({ nombre: pais })
+
+        if (!pais_existe) {
+            return res.status(404).json({
+                ok: false,
+                msg: `No se encontro ningun pais con el nombre ${pais}`
+            })
+        }
+
+        const sitios = await sitioModel.find({ pais_id: pais_existe._id.toString() })
+
+        res.json({
+            ok: true,
+            data: sitios
+        })
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        })
+    }
+}
+
 const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
     const { pais } = req.body
 
@@ -353,6 +381,7 @@ module.exports = {
     getSitios,
     getSitioById,
     getSitioByName,
+    getSitiosByPais,
     getTopSitiosVisitadosByPais,
     postSitio,
     putSitio,
