@@ -116,13 +116,83 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
 
         const sitios = await sitioModel.find({ pais_id: pais_existe._id.toString() })
 
-        const sitiosIds = sitiosDelPais.map(sitio => sitio._id.toString());
+        // Debug: verificar si hay sitios
+        console.log('Sitios encontrados:', sitios.length);
+        
+        if (sitios.length === 0) {
+            return res.json({
+                ok: true,
+                data: [],
+                msg: `No hay sitios registrados para el país ${pais}`
+            });
+        }
 
-        // Agregación para contar visitas por sitio
+        const sitiosIds = sitios.map(sitio => sitio._id.toString());
+        console.log('IDs de sitios:', sitiosIds);
+
+        // Debug: verificar visitas totales
+        const totalVisitas = await visitaModel.countDocuments();
+        console.log('Total de visitas en la BD:', totalVisitas);
+
+        // Debug: verificar visitas con sitio_id
+        const visitasConSitio = await visitaModel.countDocuments({ 
+            sitio_id: { $ne: "" } 
+        });
+        console.log('Visitas con sitio_id:', visitasConSitio);
+
+        // Agregación mejorada para contar visitas por sitio
         const topSitios = await visitaModel.aggregate([
             {
                 $match: {
-                    sitio_id: { $in: sitiosIds }
+                    sitio_id: { $in: sitiosIds },
+                    sitio_id: { $ne: "" } // Excluir visitas sin sitio
+                }
+            },
+            {
+                $group: {
+                    _id: '$sitio_id',
+                    total_visitas: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { total_visitas: -1 }
+            },
+            {
+                $limit: 10
+            }
+        ]);
+
+        console.log('Resultado de agregación básica:', topSitios);
+
+        // Si no hay resultados, intentar una consulta más simple
+        if (topSitios.length === 0) {
+            // Verificar si hay visitas para cualquiera de estos sitios
+            const visitasParaSitios = await visitaModel.find({ 
+                sitio_id: { $in: sitiosIds } 
+            });
+            
+            console.log('Visitas directas encontradas:', visitasParaSitios.length);
+            
+            return res.json({
+                ok: true,
+                data: [],
+                debug: {
+                    paisEncontrado: !!pais_existe,
+                    totalSitios: sitios.length,
+                    totalVisitas: totalVisitas,
+                    visitasConSitio: visitasConSitio,
+                    visitasParaEstePais: visitasParaSitios.length,
+                    sitiosIds: sitiosIds
+                }
+            });
+        }
+
+        // Si hay resultados, hacer el lookup completo
+        const topSitiosCompletos = await visitaModel.aggregate([
+            {
+                $match: {
+                    sitio_id: { $in: sitiosIds },
+                    sitio_id: { $ne: "" }
                 }
             },
             {
@@ -138,15 +208,23 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
                 $limit: 10
             },
             {
+                $addFields: {
+                    sitio_object_id: { $toObjectId: '$_id' }
+                }
+            },
+            {
                 $lookup: {
-                    from: 'sitios', // nombre de la colección en MongoDB (pluralizado por mongoose)
-                    localField: '_id',
+                    from: 'sitios', // Asegúrate de que este sea el nombre correcto
+                    localField: 'sitio_object_id',
                     foreignField: '_id',
                     as: 'sitio'
                 }
             },
             {
-                $unwind: '$sitio'
+                $unwind: {
+                    path: '$sitio',
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
@@ -165,27 +243,15 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
 
         res.json({
             ok: true,
-            data: topSitios
+            data: topSitiosCompletos
         });
 
-        // Forma de salida
-        /* 
-        {
-            sitio_id: ObjectId('...'),
-            nombre: "Torre Eiffel",
-            tipo: "Monumento",
-            descripcion: "...",
-            ciudad: "París",
-            direccion: "Champ de Mars, 5 Avenue Anatole",
-            img: "eiffel.jpg",
-            total_visitas: 1243
-        }
-        */
     } catch (e) {
-        console.log(e);
+        console.log('Error en getTopSitiosVisitadosByPais:', e);
         res.status(500).json({
             ok: false,
-            msg: "Error, contacte al administrador"
+            msg: "Error, contacte al administrador",
+            error: e.message
         })
     }
 }
