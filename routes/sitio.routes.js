@@ -5,6 +5,7 @@ const {
     getSitios,
     getSitioById,
     getSitioByName,
+    getTopSitiosVisitadosByPais,
     postSitio,
     putSitio,
     deleteSitio
@@ -41,6 +42,14 @@ router.get('/nombre', getSitioByName)
     plato_id: [String] por defaul es []
 }
 */
+
+// Top 10 sitios mas visitados por pais
+/* 
+{
+    pais: String
+}
+*/
+router.get('/top10porpais',getTopSitiosVisitadosByPais)
 
 router.post('/crear', [validarJWT, esAdminRole], postSitio)
 

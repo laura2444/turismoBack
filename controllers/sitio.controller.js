@@ -1,6 +1,6 @@
 const { request, response } = require('express');
 
-const { sitioModel, paisModel, platoModel } = require('../models');
+const { sitioModel, paisModel, platoModel, visitaModel } = require('../models');
 
 const getSitios = async (req = request, res = response) => {
     try {
@@ -73,6 +73,95 @@ const getSitioByName = async (req = request, res = response) => {
     }
 }
 
+const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
+    const { pais } = req.body
+
+    try {
+        const pais_existe = await paisModel.findOne({ nombre: pais })
+
+        if (!pais_existe) {
+            return res.status(404).json({
+                ok: false,
+                msg: `No se encontro ningun pais con el nombre ${pais}`
+            })
+        }
+
+        const sitios = await sitioModel.find({ pais_id: pais_existe._id.toString() })
+
+        const sitiosIds = sitiosDelPais.map(sitio => sitio._id.toString());
+
+        // Agregación para contar visitas por sitio
+        const topSitios = await visitaModel.aggregate([
+            {
+                $match: {
+                    sitio_id: { $in: sitiosIds }
+                }
+            },
+            {
+                $group: {
+                    _id: '$sitio_id',
+                    total_visitas: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { total_visitas: -1 }
+            },
+            {
+                $limit: 10
+            },
+            {
+                $lookup: {
+                    from: 'sitios', // nombre de la colección en MongoDB (pluralizado por mongoose)
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'sitio'
+                }
+            },
+            {
+                $unwind: '$sitio'
+            },
+            {
+                $project: {
+                    _id: 0,
+                    sitio_id: '$_id',
+                    nombre: '$sitio.nombre',
+                    tipo: '$sitio.tipo',
+                    descripcion: '$sitio.descripcion',
+                    direccion: '$sitio.direccion',
+                    ciudad: '$sitio.ciudad',
+                    img: '$sitio.img',
+                    total_visitas: 1
+                }
+            }
+        ]);
+
+        res.json({
+            ok: true,
+            data: topSitios
+        });
+
+        // Forma de salida
+        /* 
+        {
+            sitio_id: ObjectId('...'),
+            nombre: "Torre Eiffel",
+            tipo: "Monumento",
+            descripcion: "...",
+            ciudad: "París",
+            direccion: "Champ de Mars, 5 Avenue Anatole",
+            img: "eiffel.jpg",
+            total_visitas: 1243
+        }
+        */
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        })
+    }
+}
+
 const postSitio = async (req = request, res = response) => {
     const nuevoSitio = new sitioModel(req.body)
     try {
@@ -94,7 +183,7 @@ const postSitio = async (req = request, res = response) => {
             });
         }
 
-        for (const platoID of nuevoSitio.plato_id){
+        for (const platoID of nuevoSitio.plato_id) {
             const plato_existe = await platoModel.findOne({ _id: platoID })
             if (!plato_existe) {
                 return res.status(406).json({
@@ -158,7 +247,7 @@ const putSitio = async (req = request, res = response) => {
             });
         }
 
-        for (const platoID of req.body.plato_id){
+        for (const platoID of req.body.plato_id) {
             const plato_existe = await platoModel.findOne({ _id: platoID })
             if (!plato_existe) {
                 return res.status(406).json({
@@ -218,7 +307,7 @@ const deleteSitio = async (req = request, res = response) => {
 
         // Accion para cuando se elimina un sitio eliminarse de los platos relacionados
 
-        for (const platoID of sitio.plato_id){
+        for (const platoID of sitio.plato_id) {
             const plato_existe = await platoModel.findOne({ _id: platoID })
             if (!plato_existe) {
                 return res.status(406).json({
@@ -264,6 +353,7 @@ module.exports = {
     getSitios,
     getSitioById,
     getSitioByName,
+    getTopSitiosVisitadosByPais,
     postSitio,
     putSitio,
     deleteSitio
