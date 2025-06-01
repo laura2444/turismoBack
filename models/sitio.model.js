@@ -8,7 +8,8 @@ const sitioSchema = Schema({
     },
     tipo:{
         type: String,
-        required: [true, 'El tipo es necesario para Sitio']
+        required: [true, 'El tipo es necesario para Sitio'],
+        enum: ["museo","parque","restaurante","estadio","concierto"]
     },
     descripcion:{
         type: String,

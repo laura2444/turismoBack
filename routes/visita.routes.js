@@ -14,7 +14,7 @@ const router = Router()
 
 /*
     Los controllers de visita debido a un escenario especial donde tanto usuarios dueños
-    de la visita y administradores pueden interactiar con las visitas no se usa
+    de la visita y administradores pueden interactuar con las visitas no se usa
     validar-rol
 */
 

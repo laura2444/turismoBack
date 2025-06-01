@@ -12,7 +12,8 @@ const famosoSchema = Schema({
     },
     categoria:{
         type: String,
-        required: [true, 'Se necsita una categoria para el famoso']
+        required: [true, 'Se necsita una categoria para el famoso'],
+        enum: [ "musica", "deporte", "cine", "politica", "literatura","tecnologia"]
     },
     descripcion:{
         type: String
