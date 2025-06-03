@@ -1,6 +1,6 @@
 const { request,response } = require('express');
 
-const {famosoModel, paisModel} = require('../models');
+const {famosoModel, paisModel,visitaModel } = require('../models');
 
 const getFamosos = async (req=request,res=response)=>{
     try{
@@ -231,6 +231,93 @@ const deleteFamoso = async (req=request,res=response)=>{
     }
 }
 
+const getTop10FamososMasVisitados = async (req = request, res = response) => {
+    try {
+        // Agregación para contar visitas por famoso
+        const topFamosos = await visitaModel.aggregate([
+            // Filtrar documentos que tengan famoso_id como array no vacío
+            { $match: { famoso_id: { $exists: true, $ne: [], $type: "array" } } },
+            
+            // Desenrollar el array de famoso_id para procesar cada ID individualmente
+            { $unwind: "$famoso_id" },
+            
+            // Filtrar IDs válidos y no vacíos
+            { $match: { famoso_id: { $ne: "", $ne: null, $exists: true } } },
+            
+            // Agrupar por famoso_id y contar las visitas
+            {
+                $group: {
+                    _id: "$famoso_id",
+                    totalVisitas: { $sum: 1 }
+                }
+            },
+            
+            // Ordenar por total de visitas de mayor a menor
+            { $sort: { totalVisitas: -1 } },
+            
+            // Limitar a los top 10
+            { $limit: 10 }
+        ]);
+
+        // Si no hay resultados después del agregado
+        if (topFamosos.length === 0) {
+            return res.status(200).json({
+                ok: true,
+                msg: "No se encontraron famosos con visitas registradas",
+                data: [],
+                total: 0
+            });
+        }
+
+        // Obtener información completa de cada famoso
+        const topFamososConInfo = await Promise.all(
+            topFamosos.map(async (item, index) => {
+                try {
+                    const famoso = await famosoModel.findById(item._id);
+                    return {
+                        ranking: index + 1,
+                        famoso_id: item._id,
+                        nombre: famoso?.nombre || "Famoso no encontrado",
+                        categoria: famoso?.categoria || "",
+                        ciudad: famoso?.ciudad || "",
+                        descripcion: famoso?.descripcion || "",
+                        img: famoso?.img || "",
+                        pais_id: famoso?.pais_id || "",
+                        totalVisitas: item.totalVisitas
+                    };
+                } catch (error) {
+                    console.log(`Error al obtener famoso ${item._id}:`, error);
+                    return {
+                        ranking: index + 1,
+                        famoso_id: item._id,
+                        nombre: "Error al cargar famoso",
+                        categoria: "",
+                        ciudad: "",
+                        descripcion: "",
+                        img: "",
+                        pais_id: "",
+                        totalVisitas: item.totalVisitas
+                    };
+                }
+            })
+        );
+
+        res.json({
+            ok: true,
+            msg: "Top 10 famosos más visitados obtenido exitosamente",
+            data: topFamososConInfo,
+            total: topFamososConInfo.length
+        });
+
+    } catch (e) {
+        console.log("Error en getTop10FamososMasVisitados:", e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador"
+        });
+    }
+};
+
 module.exports={
     getFamosos,
     getFamosoById,
@@ -240,5 +327,6 @@ module.exports={
     getFamosoByPais,
     postFamoso,
     putFamoso,
-    deleteFamoso
+    deleteFamoso,
+    getTop10FamososMasVisitados
 }

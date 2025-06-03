@@ -10,13 +10,16 @@ const {
     getFamosoByPais,
     postFamoso,
     putFamoso,
-    deleteFamoso
+    deleteFamoso,
+    getTop10FamososMasVisitados
 } = require('../controllers/famoso.controller')
 
 const router = Router()
 
 // Ruta para traer todos los famosos
 router.get('/', getFamosos)
+
+router.get('/top', getTop10FamososMasVisitados);
 
 // Ruta para consultar famoso por id
 router.get('/:id', getFamosoById)
@@ -88,5 +91,6 @@ router.put('/editar/:id', [validarJWT, esAdminRole], putFamoso)
 // Ruta para eliminar famoso | es necesario admin
 
 router.delete('/eliminar/:id', [validarJWT, esAdminRole], deleteFamoso)
+
 
 module.exports = router

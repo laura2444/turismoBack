@@ -105,21 +105,27 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
     const { pais } = req.body
 
     try {
-        const pais_existe = await paisModel.findOne({ nombre: { $regex: pais, $options:'i' } })
+        // PASO 1: Validar que existe el país
+        const pais_existe = await paisModel.findOne({ 
+            nombre: { $regex: pais, $options:'i' } 
+        });
 
         if (!pais_existe) {
             return res.status(404).json({
                 ok: false,
-                msg: `No se encontro ningun pais con el nombre ${pais}`
-            })
+                msg: `No se encontró ningún país con el nombre ${pais}`
+            });
         }
 
-        const sitios = await sitioModel.find({ pais_id: pais_existe._id.toString() })
+        console.log('País seleccionado:', pais_existe.nombre);
+        console.log('ID del país:', pais_existe._id);
 
-        // Debug: verificar si hay sitios
-        console.log('Sitios encontrados:', sitios.length);
+        // PASO 2: Obtener SOLO los sitios que pertenecen a este país
+        const sitiosDelPais = await sitioModel.find({ 
+            pais_id: pais_existe._id.toString() 
+        });
         
-        if (sitios.length === 0) {
+        if (sitiosDelPais.length === 0) {
             return res.json({
                 ok: true,
                 data: [],
@@ -127,123 +133,79 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
             });
         }
 
-        const sitiosIds = sitios.map(sitio => sitio._id.toString());
-        console.log('IDs de sitios:', sitiosIds);
+        console.log(`Sitios encontrados para ${pais}:`, sitiosDelPais.length);
+        
+        // PASO 3: Crear array de IDs de sitios del país
+        const sitiosIds = sitiosDelPais.map(sitio => sitio._id.toString());
+        console.log('IDs de sitios del país:', sitiosIds);
 
-        // Debug: verificar visitas totales
-        const totalVisitas = await visitaModel.countDocuments();
-        console.log('Total de visitas en la BD:', totalVisitas);
-
-        // Debug: verificar visitas con sitio_id
-        const visitasConSitio = await visitaModel.countDocuments({ 
-            sitio_id: { $ne: "" } 
+        // PASO 4: Usar método simple y confiable para evitar errores de agregación
+        const visitasDelPais = await visitaModel.find({ 
+            sitio_id: { $in: sitiosIds },
+            sitio_id: { $ne: "" },
+            sitio_id: { $ne: null }
         });
-        console.log('Visitas con sitio_id:', visitasConSitio);
 
-        // Agregación mejorada para contar visitas por sitio
-        const topSitios = await visitaModel.aggregate([
-            {
-                $match: {
-                    sitio_id: { $in: sitiosIds },
-                    sitio_id: { $ne: "" } // Excluir visitas sin sitio
-                }
-            },
-            {
-                $group: {
-                    _id: '$sitio_id',
-                    total_visitas: { $sum: 1 }
-                }
-            },
-            {
-                $sort: { total_visitas: -1 }
-            },
-            {
-                $limit: 10
-            }
-        ]);
+        console.log('Total de visitas encontradas:', visitasDelPais.length);
 
-        console.log('Resultado de agregación básica:', topSitios);
-
-        // Si no hay resultados, intentar una consulta más simple
-        if (topSitios.length === 0) {
-            // Verificar si hay visitas para cualquiera de estos sitios
-            const visitasParaSitios = await visitaModel.find({ 
-                sitio_id: { $in: sitiosIds } 
-            });
-            
-            console.log('Visitas directas encontradas:', visitasParaSitios.length);
-            
+        if (visitasDelPais.length === 0) {
             return res.json({
                 ok: true,
                 data: [],
-                debug: {
-                    paisEncontrado: !!pais_existe,
-                    totalSitios: sitios.length,
-                    totalVisitas: totalVisitas,
-                    visitasConSitio: visitasConSitio,
-                    visitasParaEstePais: visitasParaSitios.length,
-                    sitiosIds: sitiosIds
-                }
+                msg: `No se encontraron visitas para sitios del país ${pais}`
             });
         }
 
-        // Si hay resultados, hacer el lookup completo
-        const topSitiosCompletos = await visitaModel.aggregate([
-            {
-                $match: {
-                    sitio_id: { $in: sitiosIds },
-                    sitio_id: { $ne: "" }
+        // PASO 5: Contar visitas manualmente para mayor control
+        const conteoVisitas = {};
+        visitasDelPais.forEach(visita => {
+            const sitioId = visita.sitio_id;
+            conteoVisitas[sitioId] = (conteoVisitas[sitioId] || 0) + 1;
+        });
+
+        console.log('Conteo de visitas por sitio:', conteoVisitas);
+
+        // PASO 6: Crear mapa de sitios para acceso rápido
+        const sitiosMap = {};
+        sitiosDelPais.forEach(sitio => {
+            sitiosMap[sitio._id.toString()] = sitio;
+        });
+
+        // PASO 7: Generar resultado final
+        const resultados = Object.entries(conteoVisitas)
+            .map(([sitioId, totalVisitas]) => {
+                const sitio = sitiosMap[sitioId];
+                
+                // Verificación adicional para asegurar que el sitio pertenece al país
+                if (!sitio || sitio.pais_id !== pais_existe._id.toString()) {
+                    console.warn(`Sitio ${sitioId} no pertenece al país ${pais}`);
+                    return null;
                 }
-            },
-            {
-                $group: {
-                    _id: '$sitio_id',
-                    total_visitas: { $sum: 1 }
-                }
-            },
-            {
-                $sort: { total_visitas: -1 }
-            },
-            {
-                $limit: 10
-            },
-            {
-                $addFields: {
-                    sitio_object_id: { $toObjectId: '$_id' }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'sitios', // Asegúrate de que este sea el nombre correcto
-                    localField: 'sitio_object_id',
-                    foreignField: '_id',
-                    as: 'sitio'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$sitio',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    sitio_id: '$_id',
-                    nombre: '$sitio.nombre',
-                    tipo: '$sitio.tipo',
-                    descripcion: '$sitio.descripcion',
-                    direccion: '$sitio.direccion',
-                    ciudad: '$sitio.ciudad',
-                    img: '$sitio.img',
-                    total_visitas: 1
-                }
-            }
-        ]);
+                
+                return {
+                    sitio_id: sitioId,
+                    nombre: sitio.nombre,
+                    tipo: sitio.tipo,
+                    descripcion: sitio.descripcion,
+                    direccion: sitio.direccion,
+                    ciudad: sitio.ciudad,
+                    img: sitio.img,
+                    coordenadas: sitio.coordenadas,
+                    pais_id: sitio.pais_id, // Para debug
+                    total_visitas: totalVisitas
+                };
+            })
+            .filter(resultado => resultado !== null) // Filtrar nulls
+            .sort((a, b) => b.total_visitas - a.total_visitas)
+            .slice(0, 10);
+
+        console.log('Resultados finales:', resultados.length);
 
         res.json({
             ok: true,
-            data: topSitiosCompletos
+            data: resultados,
+            total_sitios_con_visitas: resultados.length,
+            pais_consultado: pais_existe.nombre
         });
 
     } catch (e) {
@@ -251,10 +213,110 @@ const getTopSitiosVisitadosByPais = async (req = request, res = response) => {
         res.status(500).json({
             ok: false,
             msg: "Error, contacte al administrador",
-            error: e.message
-        })
+            error: process.env.NODE_ENV === 'development' ? e.message : undefined
+        });
     }
-}
+};
+
+// VERSIÓN ALTERNATIVA CON AGREGACIÓN MEJORADA
+const getTopSitiosVisitadosByPaisAgregacion = async (req = request, res = response) => {
+    const { pais } = req.body;
+
+    try {
+        // Buscar el país
+        const pais_existe = await paisModel.findOne({ 
+            nombre: { $regex: pais, $options:'i' } 
+        });
+
+        if (!pais_existe) {
+            return res.status(404).json({
+                ok: false,
+                msg: `No se encontró ningún país con el nombre ${pais}`
+            });
+        }
+
+        // Agregación directa desde sitios para asegurar que todo pertenece al país
+        const topSitios = await sitioModel.aggregate([
+            // 1. Filtrar sitios del país específico
+            {
+                $match: {
+                    pais_id: pais_existe._id.toString()
+                }
+            },
+            // 2. Hacer lookup con visitas
+            {
+                $lookup: {
+                    from: "visitas", // Nombre de tu colección de visitas
+                    let: { sitio_id_str: { $toString: "$_id" } },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$sitio_id", "$$sitio_id_str"] },
+                                        { $ne: ["$sitio_id", ""] },
+                                        { $ne: ["$sitio_id", null] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "visitas"
+                }
+            },
+            // 3. Solo incluir sitios que tienen visitas
+            {
+                $match: {
+                    "visitas.0": { $exists: true }
+                }
+            },
+            // 4. Agregar conteo de visitas
+            {
+                $addFields: {
+                    total_visitas: { $size: "$visitas" }
+                }
+            },
+            // 5. Proyectar campos necesarios
+            {
+                $project: {
+                    sitio_id: { $toString: "$_id" },
+                    nombre: 1,
+                    tipo: 1,
+                    descripcion: 1,
+                    direccion: 1,
+                    ciudad: 1,
+                    img: 1,
+                    coordenadas: 1,
+                    total_visitas: 1,
+                    _id: 0
+                }
+            },
+            // 6. Ordenar por visitas
+            {
+                $sort: { total_visitas: -1 }
+            },
+            // 7. Limitar a top 10
+            {
+                $limit: 10
+            }
+        ]);
+
+        res.json({
+            ok: true,
+            data: topSitios,
+            total_sitios_con_visitas: topSitios.length,
+            pais_consultado: pais_existe.nombre
+        });
+
+    } catch (e) {
+        console.log('Error en getTopSitiosVisitadosByPaisAgregacion:', e);
+        res.status(500).json({
+            ok: false,
+            msg: "Error, contacte al administrador",
+            error: process.env.NODE_ENV === 'development' ? e.message : undefined
+        });
+    }
+};
 
 const getSitioByCiudad = async (req = request, res = response)=>{
     const {ciudad} = req.body
